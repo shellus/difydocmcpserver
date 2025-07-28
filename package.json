@@ -19,6 +19,22 @@
   ],
   "author": "编程之王v3",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/dify-doc-mcp-server.git"
+  },
+  "homepage": "https://github.com/your-username/dify-doc-mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/your-username/dify-doc-mcp-server/issues"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "package.json"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.0",
     "axios": "^1.6.0",

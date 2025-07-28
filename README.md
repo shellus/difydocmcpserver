@@ -20,43 +20,45 @@
 
 通过MCP协议与Dify REST API集成，支持语义检索、关键字检索、全文检索和混合检索等多种检索方式。
 
+## 安装
+
+### 全局安装
+```bash
+npm install -g dify-doc-mcp-server
+```
+
+### 或使用npx（无需安装）
+```bash
+npx dify-doc-mcp-server
+```
+
 ## 快速开始
 
-### 1. 安装依赖
+### 方式一：使用npx（推荐）
 ```bash
+# 直接运行，无需安装
+DIFY_BASE_URL="http://your-dify-host:8031" DIFY_API_KEY="your-api-key" npx dify-doc-mcp-server
+```
+
+### 方式二：本地开发
+```bash
+# 1. 克隆项目
+git clone <repository-url>
+cd difydocmcpserver
+
+# 2. 安装依赖
 npm install
-```
 
-### 2. 配置环境变量
-```bash
-# Dify API基础URL（默认: http://localhost:8031）
+# 3. 配置环境变量
 export DIFY_BASE_URL="http://localhost:8031"
-
-# Dify API密钥（必需）
 export DIFY_API_KEY="your-dify-api-key"
-```
 
-### 3. 构建和运行
-```bash
-# 构建项目
+# 4. 构建和运行
 npm run build
-
-# 开发模式
-npm run dev
-
-# 生产模式
 npm start
 ```
 
 ## 可用工具
-
-### dify_retrieve_knowledge
-从Dify知识库中检索相关内容
-- `dataset_id` (必需): 知识库ID
-- `query` (必需): 检索查询内容
-- `search_method` (可选): 检索方法 (semantic_search/keyword_search/full_text_search/hybrid_search)
-- `top_k` (可选): 返回结果数量 (1-20，默认3)
-- `score_threshold` (可选): 相似度阈值 (0-1，默认0.5)
 
 ### dify_list_datasets
 获取Dify知识库列表
@@ -67,18 +69,24 @@ npm start
 获取Dify知识库详细信息
 - `dataset_id` (必需): 知识库ID
 
+### dify_retrieve_knowledge
+从Dify知识库中检索相关内容
+- `dataset_id` (必需): 知识库ID
+- `query` (必需): 检索查询内容
+- `search_method` (可选): 检索方法 (semantic_search/keyword_search/full_text_search/hybrid_search)
+- `top_k` (可选): 返回结果数量 (1-20，默认3)
+- `score_threshold` (可选): 相似度阈值 (0-1，默认0)
+
 ## MCP客户端配置
 
-### Claude Desktop
-在Claude Desktop配置文件中添加：
 ```json
 {
   "mcpServers": {
     "dify-doc": {
-      "command": "node",
-      "args": ["/path/to/difydocmcpserver/dist/index.js"],
+      "command": "npx",
+      "args": ["dify-doc-mcp-server"],
       "env": {
-        "DIFY_BASE_URL": "http://localhost:8031",
+        "DIFY_BASE_URL": "http://your-dify-host:8031",
         "DIFY_API_KEY": "your-dify-api-key"
       }
     }
@@ -86,62 +94,24 @@ npm start
 }
 ```
 
+
 ## API密钥获取
 1. 登录Dify控制台
-2. 进入"设置" → "API密钥"
+2. 进入"设置" → "知识库" → "API" → "API密钥"
 3. 创建新的API密钥
 4. 复制密钥并设置到环境变量中
 
-## 项目结构
-```
-difydocmcpserver/
-├── src/index.ts          # MCP Server主文件
-├── dist/                 # 编译输出目录
-├── package.json          # 项目配置
-├── tsconfig.json         # TypeScript配置
-└── README.md            # 项目文档
-```
-
 ## 测试
-运行测试脚本验证功能：
+
 ```bash
-node test-mcp.js
+# 设置环境变量并运行测试
+DIFY_BASE_URL="http://your-dify-host:8031" DIFY_API_KEY="your-api-key" DATASET="your-dataset-name" QUERY="引导" node test-mcp.js
 ```
 
 测试脚本会验证：
 - MCP Server连接
 - 工具列表获取
-- 知识库检索功能
-
-## 开发经验总结
-
-### API参数配置
-根据Dify官方文档，检索API的正确参数格式为：
-```json
-{
-  "query": "检索内容",
-  "retrieval_model": {
-    "search_method": "semantic_search",
-    "reranking_enable": false,
-    "reranking_mode": null,
-    "reranking_model": {
-      "reranking_provider_name": "",
-      "reranking_model_name": ""
-    },
-    "weights": null,
-    "top_k": 3,
-    "score_threshold_enabled": false,
-    "score_threshold": null
-  }
-}
-```
-
-### 关键注意事项
-- `score_threshold_enabled`应根据是否需要分数过滤动态设置
-- 当`score_threshold`为0时，应设置`score_threshold_enabled: false`
-- API路径使用`/v1/datasets/{dataset_id}/retrieve`
-- 数据集级别API密钥只能访问特定知识库的检索功能
-- 知识库列表和详情功能需要管理员级别的API密钥
+- 知识库列表、详情和检索功能
 
 ## 相关链接
 - [Dify官方文档](https://docs.dify.ai/)

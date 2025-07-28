@@ -3,7 +3,6 @@
 // MCP客户端测试脚本
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -19,12 +18,12 @@ async function testMCPServer() {
   try {
     // 创建传输层，启动我们的MCP服务器
     transport = new StdioClientTransport({
-      command: "node",
-      args: [join(__dirname, "dist/index.js")],
+      command: "npx",
+      args: ["dify-doc-mcp-server"],
       env: {
         ...process.env,
-        DIFY_BASE_URL: process.env.DIFY_BASE_URL || "http://localhost:8031",
-        DIFY_API_KEY: process.env.DIFY_API_KEY || "your-api-key"
+        DIFY_BASE_URL: process.env.DIFY_BASE_URL,
+        DIFY_API_KEY: process.env.DIFY_API_KEY
       }
     });
 
@@ -84,10 +83,9 @@ async function testMCPServer() {
       name: "dify_retrieve_knowledge",
       arguments: {
         dataset_id: targetDatasetId,
-        query: "Q63怎么重置？",
+        query: process.env.QUERY,
         search_method: "semantic_search",
-        top_k: 3,
-        score_threshold: 0
+        top_k: 3
       }
     });
     console.log('✅ 知识库检索结果:', retrieveResult.content[0].text);

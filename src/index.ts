@@ -44,9 +44,13 @@ interface DifyDatasetListResponse {
 
 // 从环境变量获取配置
 const getDifyConfig = (): DifyConfig => {
-  const baseUrl = process.env.DIFY_BASE_URL || "http://localhost:8031";
+  const baseUrl = process.env.DIFY_BASE_URL;
   const apiKey = process.env.DIFY_API_KEY;
   
+  if (!baseUrl) {
+    throw new Error("DIFY_BASE_URL environment variable is required");
+  }
+
   if (!apiKey) {
     throw new Error("DIFY_API_KEY environment variable is required");
   }
@@ -73,10 +77,10 @@ server.registerTool(
         .default("semantic_search")
         .describe("检索方法"),
       top_k: z.number().min(1).max(20).default(3).describe("返回结果数量"),
-      score_threshold: z.number().min(0).max(1).default(0.5).describe("相似度阈值"),
+      score_threshold: z.number().min(0).max(1).default(0).describe("相似度阈值"),
     }
   },
-  async ({ dataset_id, query, search_method = "semantic_search", top_k = 3, score_threshold = 0.5 }) => {
+  async ({ dataset_id, query, search_method = "semantic_search", top_k = 3, score_threshold = 0 }) => {
     try {
       const config = getDifyConfig();
 
