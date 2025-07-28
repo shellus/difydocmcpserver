@@ -48,17 +48,32 @@ async function testMCPServer() {
     const listResult = await client.callTool({
       name: "dify_list_datasets",
       arguments: {
-        limit: 5
+        keyword: process.env.DATASET || "",
+        limit: 10
       }
     });
     console.log('✅ 知识库列表结果:', listResult.content[0].text);
+
+    // 从列表结果中提取dataset_id（如果指定了DATASET名称）
+    let targetDatasetId = process.env.DATASET_ID;
+    if (!targetDatasetId && process.env.DATASET) {
+      const listText = listResult.content[0].text;
+      const match = listText.match(new RegExp(`\\d+\\. ${process.env.DATASET}.*?\\(ID: ([^)]+)\\)`));
+      if (match) {
+        targetDatasetId = match[1];
+        console.log(`📍 找到知识库"${process.env.DATASET}"的ID: ${targetDatasetId}`);
+      }
+    }
+    if (!targetDatasetId) {
+      targetDatasetId = "your-dataset-id";
+    }
 
     // 测试3: 获取知识库详情
     console.log('\n3️⃣ 测试知识库详情...');
     const detailResult = await client.callTool({
       name: "dify_get_dataset_detail",
       arguments: {
-        dataset_id: process.env.DATASET_ID || "your-dataset-id"
+        dataset_id: targetDatasetId
       }
     });
     console.log('✅ 知识库详情结果:', detailResult.content[0].text);
@@ -68,7 +83,7 @@ async function testMCPServer() {
     const retrieveResult = await client.callTool({
       name: "dify_retrieve_knowledge",
       arguments: {
-        dataset_id: process.env.DATASET_ID || "your-dataset-id",
+        dataset_id: targetDatasetId,
         query: "Q63怎么重置？",
         search_method: "semantic_search",
         top_k: 3,
