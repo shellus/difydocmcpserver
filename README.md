@@ -95,13 +95,53 @@ npm start
 ## 项目结构
 ```
 difydocmcpserver/
-├── src/
-│   └── index.ts          # MCP Server主文件
+├── src/index.ts          # MCP Server主文件
 ├── dist/                 # 编译输出目录
 ├── package.json          # 项目配置
 ├── tsconfig.json         # TypeScript配置
 └── README.md            # 项目文档
 ```
+
+## 测试
+运行测试脚本验证功能：
+```bash
+node test-mcp.js
+```
+
+测试脚本会验证：
+- MCP Server连接
+- 工具列表获取
+- 知识库检索功能
+
+## 开发经验总结
+
+### API参数配置
+根据Dify官方文档，检索API的正确参数格式为：
+```json
+{
+  "query": "检索内容",
+  "retrieval_model": {
+    "search_method": "semantic_search",
+    "reranking_enable": false,
+    "reranking_mode": null,
+    "reranking_model": {
+      "reranking_provider_name": "",
+      "reranking_model_name": ""
+    },
+    "weights": null,
+    "top_k": 3,
+    "score_threshold_enabled": false,
+    "score_threshold": null
+  }
+}
+```
+
+### 关键注意事项
+- `score_threshold_enabled`应根据是否需要分数过滤动态设置
+- 当`score_threshold`为0时，应设置`score_threshold_enabled: false`
+- API路径使用`/v1/datasets/{dataset_id}/retrieve`
+- 数据集级别API密钥只能访问特定知识库的检索功能
+- 知识库列表和详情功能需要管理员级别的API密钥
 
 ## 相关链接
 - [Dify官方文档](https://docs.dify.ai/)

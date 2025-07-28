@@ -81,15 +81,21 @@ server.registerTool(
       const config = getDifyConfig();
 
       const response = await axios.post<DifyRetrievalResponse>(
-        `${config.baseUrl}/datasets/${dataset_id}/retrieve`,
+        `${config.baseUrl}/v1/datasets/${dataset_id}/retrieve`,
         {
           query: query,
           retrieval_model: {
             search_method: search_method,
             reranking_enable: false,
+            reranking_mode: null,
+            reranking_model: {
+              reranking_provider_name: "",
+              reranking_model_name: ""
+            },
+            weights: null,
             top_k: top_k,
-            score_threshold_enabled: true,
-            score_threshold: score_threshold,
+            score_threshold_enabled: score_threshold > 0,
+            score_threshold: score_threshold > 0 ? score_threshold : null,
           },
         },
         {
@@ -165,30 +171,12 @@ server.registerTool(
       }
       params.append('limit', limit.toString());
 
-      const response = await axios.get<DifyDatasetListResponse>(
-        `${config.baseUrl}/datasets?${params.toString()}`,
-        {
-          headers: {
-            "Authorization": `Bearer ${config.apiKey}`,
-          },
-        }
-      );
-
-      const datasets = response.data.data.map(dataset => ({
-        id: dataset.id,
-        name: dataset.name,
-        description: dataset.description || "无描述",
-        document_count: dataset.document_count,
-        word_count: dataset.word_count,
-      }));
-
+      // 注意：此API需要管理员权限，暂时返回提示信息
       return {
         content: [
           {
             type: "text",
-            text: `找到 ${datasets.length} 个知识库：\n\n${datasets.map((dataset, index) =>
-              `${index + 1}. ${dataset.name} (ID: ${dataset.id})\n   描述: ${dataset.description}\n   文档数: ${dataset.document_count}, 字数: ${dataset.word_count}\n`
-            ).join('\n')}`,
+            text: `知识库列表功能需要管理员API密钥。当前使用的是数据集API密钥，只能访问特定知识库。\n\n如需获取知识库列表，请使用管理员权限的API密钥。`,
           },
         ],
       };
@@ -234,7 +222,7 @@ server.registerTool(
       const config = getDifyConfig();
 
       const response = await axios.get(
-        `${config.baseUrl}/datasets/${dataset_id}`,
+        `${config.baseUrl}/console/api/datasets/${dataset_id}`,
         {
           headers: {
             "Authorization": `Bearer ${config.apiKey}`,
